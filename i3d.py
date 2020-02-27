@@ -13,6 +13,7 @@ class Downsample(nn.Sequential):
 class BasicBlock(nn.Module):
     def __init__(self, in_channels, mid_channels, out_channels, is_inflate, is_downsample=False):
         super(BasicBlock, self).__init__()
+        self.is_downsample = is_downsample
         if is_inflate:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(3, 1, 1), stride=(1, 1, 1), padding=(1, 0, 0), bias=False)
         else:
@@ -26,7 +27,6 @@ class BasicBlock(nn.Module):
             self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
         self.bn2 = nn.BatchNorm3d(mid_channels)
         self.relu2 = nn.ReLU(inplace=True)
-        self.is_downsample = is_downsample
 
         self.conv3 = nn.Conv3d(in_channels=mid_channels, out_channels=out_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
         self.bn3 = nn.BatchNorm3d(out_channels)
@@ -136,9 +136,6 @@ class I3D(nn.Module):
         out = self.cls_head(out)
 
         return out
-
-
-
 
 
 i3d = I3D()
