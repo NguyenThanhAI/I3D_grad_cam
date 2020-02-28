@@ -10,9 +10,9 @@ class Downsample(nn.Sequential):
                                          nn.BatchNorm3d(out_channels))
 
 
-class BasicBlock(nn.Module):
+class Bottleneck(nn.Module):
     def __init__(self, in_channels, mid_channels, out_channels, is_inflate, is_downsample=False):
-        super(BasicBlock, self).__init__()
+        super(Bottleneck, self).__init__()
         self.is_downsample = is_downsample
         if is_inflate:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(3, 1, 1), stride=(1, 1, 1), padding=(1, 0, 0), bias=False)
@@ -61,26 +61,27 @@ class BackBone(nn.Module):
         self.bn1 = nn.BatchNorm3d(num_features=64)
         self.relu1 = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(2, 2, 2), padding=(0, 1, 1))
+        self.pool2 = nn.MaxPool3d(kernel_size=(2, 1, 1), stride=(2, 1, 1), padding=(0, 0, 0))
 
-        self.layer1 = nn.Sequential(BasicBlock(in_channels=64, mid_channels=64, out_channels=256, is_inflate=True, is_downsample=True),
-                                    BasicBlock(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True),
-                                    BasicBlock(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True))
+        self.layer1 = nn.Sequential(Bottleneck(in_channels=64, mid_channels=64, out_channels=256, is_inflate=True, is_downsample=True),
+                                    Bottleneck(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True),
+                                    Bottleneck(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True))
 
-        self.layer2 = nn.Sequential(BasicBlock(in_channels=256, mid_channels=128, out_channels=512, is_inflate=True, is_downsample=True),
-                                    BasicBlock(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False),
-                                    BasicBlock(in_channels=512, mid_channels=128, out_channels=512, is_inflate=True),
-                                    BasicBlock(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False))
+        self.layer2 = nn.Sequential(Bottleneck(in_channels=256, mid_channels=128, out_channels=512, is_inflate=True, is_downsample=True),
+                                    Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False),
+                                    Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=True),
+                                    Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False))
 
-        self.layer3 = nn.Sequential(BasicBlock(in_channels=512, mid_channels=256, out_channels=1024, is_inflate=True, is_downsample=True),
-                                    BasicBlock(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
-                                    BasicBlock(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
-                                    BasicBlock(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
-                                    BasicBlock(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
-                                    BasicBlock(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False))
+        self.layer3 = nn.Sequential(Bottleneck(in_channels=512, mid_channels=256, out_channels=1024, is_inflate=True, is_downsample=True),
+                                    Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
+                                    Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
+                                    Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
+                                    Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
+                                    Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False))
 
-        self.layer4 = nn.Sequential(BasicBlock(in_channels=1024, mid_channels=512, out_channels=2048, is_inflate=False, is_downsample=True),
-                                    BasicBlock(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=True),
-                                    BasicBlock(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=False))
+        self.layer4 = nn.Sequential(Bottleneck(in_channels=1024, mid_channels=512, out_channels=2048, is_inflate=False, is_downsample=True),
+                                    Bottleneck(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=True),
+                                    Bottleneck(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=False))
 
 
     def forward(self, x):
@@ -89,6 +90,7 @@ class BackBone(nn.Module):
         out = self.relu1(out)
         out = self.max_pool(out)
         out = self.layer1(out)
+        out = self.pool2(out)
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
