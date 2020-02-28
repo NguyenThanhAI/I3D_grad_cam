@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torchvision
 import torch.nn as nn
@@ -7,29 +8,39 @@ import torch.nn as nn
 class Downsample(nn.Sequential):
     def __init__(self, in_channels, out_channels, stride=2):
         super(Downsample, self).__init__(nn.Conv3d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=(1, stride, stride), bias=False),
-                                         nn.BatchNorm3d(out_channels))
+                                         nn.BatchNorm3d(num_features=out_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True))
 
 
 class Bottleneck(nn.Module):
-    def __init__(self, in_channels, mid_channels, out_channels, is_inflate, is_downsample=False):
+    def __init__(self, in_channels, mid_channels, out_channels, is_inflate, is_downsample=False, has_downsample=False):
         super(Bottleneck, self).__init__()
         self.is_downsample = is_downsample
+        self.has_downsample = has_downsample
         if is_inflate:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(3, 1, 1), stride=(1, 1, 1), padding=(1, 0, 0), bias=False)
         else:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
-        self.bn1 = nn.BatchNorm3d(mid_channels)
+        self.bn1 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.relu1 = nn.ReLU(inplace=True)
-        if self.is_downsample:
-            self.downsample = Downsample(in_channels, out_channels=out_channels)
-            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+        #if self.is_downsample:
+        #    self.downsample = Downsample(in_channels, out_channels=out_channels)
+        #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+        #else:
+        #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+        if self.has_downsample:
+            if self.is_downsample:
+                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=2)
+                self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+            else:
+                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=1)
+                self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
         else:
-            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
-        self.bn2 = nn.BatchNorm3d(mid_channels)
+            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+        self.bn2 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.relu2 = nn.ReLU(inplace=True)
 
         self.conv3 = nn.Conv3d(in_channels=mid_channels, out_channels=out_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
-        self.bn3 = nn.BatchNorm3d(out_channels)
+        self.bn3 = nn.BatchNorm3d(num_features=out_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
@@ -58,28 +69,28 @@ class BackBone(nn.Module):
     def __init__(self):
         super(BackBone, self).__init__()
         self.conv1 = nn.Conv3d(in_channels=3, out_channels=64, kernel_size=(5, 7, 7), stride=(2, 2, 2), bias=False, padding=(2, 3, 3))
-        self.bn1 = nn.BatchNorm3d(num_features=64)
+        self.bn1 = nn.BatchNorm3d(num_features=64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.relu1 = nn.ReLU(inplace=True)
-        self.max_pool = nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(2, 2, 2), padding=(0, 1, 1))
-        self.pool2 = nn.MaxPool3d(kernel_size=(2, 1, 1), stride=(2, 1, 1), padding=(0, 0, 0))
+        self.max_pool = nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(2, 2, 2), padding=(0, 1, 1), dilation=1, ceil_mode=False)
+        self.pool2 = nn.MaxPool3d(kernel_size=(2, 1, 1), stride=(2, 1, 1), padding=(0, 0, 0), dilation=1, ceil_mode=False)
 
-        self.layer1 = nn.Sequential(Bottleneck(in_channels=64, mid_channels=64, out_channels=256, is_inflate=True, is_downsample=True),
+        self.layer1 = nn.Sequential(Bottleneck(in_channels=64, mid_channels=64, out_channels=256, is_inflate=True, is_downsample=False, has_downsample=True),
                                     Bottleneck(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True),
                                     Bottleneck(in_channels=256, mid_channels=64, out_channels=256, is_inflate=True))
 
-        self.layer2 = nn.Sequential(Bottleneck(in_channels=256, mid_channels=128, out_channels=512, is_inflate=True, is_downsample=True),
+        self.layer2 = nn.Sequential(Bottleneck(in_channels=256, mid_channels=128, out_channels=512, is_inflate=True, is_downsample=True, has_downsample=True),
                                     Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False),
                                     Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=True),
                                     Bottleneck(in_channels=512, mid_channels=128, out_channels=512, is_inflate=False))
 
-        self.layer3 = nn.Sequential(Bottleneck(in_channels=512, mid_channels=256, out_channels=1024, is_inflate=True, is_downsample=True),
+        self.layer3 = nn.Sequential(Bottleneck(in_channels=512, mid_channels=256, out_channels=1024, is_inflate=True, is_downsample=True, has_downsample=True),
                                     Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
                                     Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
                                     Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False),
                                     Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=True),
                                     Bottleneck(in_channels=1024, mid_channels=256, out_channels=1024, is_inflate=False))
 
-        self.layer4 = nn.Sequential(Bottleneck(in_channels=1024, mid_channels=512, out_channels=2048, is_inflate=False, is_downsample=True),
+        self.layer4 = nn.Sequential(Bottleneck(in_channels=1024, mid_channels=512, out_channels=2048, is_inflate=False, is_downsample=True, has_downsample=True),
                                     Bottleneck(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=True),
                                     Bottleneck(in_channels=2048, mid_channels=512, out_channels=2048, is_inflate=False))
 
@@ -129,7 +140,7 @@ class I3D(nn.Module):
     def __init__(self):
         super(I3D, self).__init__()
         self.backbone = BackBone()
-        self.simplespatialtemporalmodule = SimpleSpatialTemporalModule()
+        self.simplespatialtemporalmodule = SimpleSpatialTemporalModule(spatial_size=8)
         self.cls_head = ClsHead()
 
     def forward(self, x):
@@ -150,3 +161,6 @@ for name, param in dict(i3d.state_dict()).items():
 print(i)
 
 i3d.load_state_dict(torch.load("i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth")["state_dict"])
+
+for name, module in i3d._modules.items():
+    print(name, module)
