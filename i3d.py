@@ -169,11 +169,19 @@ i3d.load_state_dict(torch.load("i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s
 #for name, module in i3d._modules.items():
 #    print(name, module)
 
-print(i3d)
+#print(i3d)
 
 input = np.random.rand(1, 3, 32, 256, 256)
 input = torch.from_numpy(input).float()
 
 output = i3d(input)
+
+print(output)
+output = input
+for name, module in i3d._modules.items():
+    output = module(output)
+    print(isinstance(module, BackBone))
+    print(output.size())
+    #print(module)
 
 print(output)
