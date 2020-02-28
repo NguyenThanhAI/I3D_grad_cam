@@ -1,5 +1,6 @@
 import os
 import argparse
+import numpy as np
 import mmcv
 
 import torch
@@ -8,11 +9,11 @@ from mmcv.runner import load_checkpoint, parallel_test, obj_from_dict
 from mmcv.runner import get_dist_info
 from mmcv.parallel import scatter, collate, MMDataParallel, MMDistributedDataParallel
 
-from mmaction import datasets
-from mmaction.apis import init_dist
-from mmaction.datasets import build_dataloader
+#from mmaction import datasets
+#from mmaction.apis import init_dist
+#from mmaction.datasets import build_dataloader
 from mmaction.models import build_recognizer, recognizers
-from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy, mean_class_accuracy)
+#from mmaction.core.evaluation.accuracy import (softmax, top_k_accuracy, mean_class_accuracy)
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -31,3 +32,16 @@ if cfg.data.test.oversample == 'three_crop':
     cfg.model.spatial_temporal_module.spatial_size = 8
 
 model = build_recognizer(cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
+
+#for name, module in model._modules.items():
+#    print(name, module)
+
+print(model)
+input = np.random.rand(1, 3, 32, 256, 256)
+input = torch.from_numpy(input).float()
+
+model.load_state_dict(torch.load(args.checkpoint)["state_dict"])
+
+output = model(input)
+
+print(output)
