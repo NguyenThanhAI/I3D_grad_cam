@@ -54,11 +54,11 @@ class Bottleneck(nn.Module):
         out = self.conv3(out)
         out = self.bn3(out)
 
-        if self.is_downsample:
+        if self.has_downsample:
             residual = self.downsample(x)
         else:
             residual = x
-
+        #print(out.size(), residual.size())
         out = out + residual
         out = self.relu(out)
 
@@ -126,11 +126,14 @@ class SimpleSpatialTemporalModule(nn.Module):
 class ClsHead(nn.Module):
     def __init__(self, in_features=2048, out_features=400):
         super(ClsHead, self).__init__()
-        self.global_average_pooling = nn.AdaptiveAvgPool3d((1, 1, 1))
+        #self.global_average_pooling = nn.AdaptiveAvgPool3d((1, 1, 1)) # Tạm thời không cần thiết
         self.fc_cls = nn.Linear(in_features=in_features, out_features=out_features, bias=True)
 
     def forward(self, x):
-        out = self.global_average_pooling(x)
+        #out = self.global_average_pooling(x) # Tạm thời không cần thiết
+        #print(out.size())
+        #out = out.flatten(1)
+        out = x.flatten(1)
         out = self.fc_cls(out)
 
         return out
@@ -146,6 +149,7 @@ class I3D(nn.Module):
     def forward(self, x):
         out = self.backbone(x)
         out = self.simplespatialtemporalmodule(out)
+        #print(out.size())
         out = self.cls_head(out)
 
         return out
@@ -162,5 +166,14 @@ print(i)
 
 i3d.load_state_dict(torch.load("i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth")["state_dict"])
 
-for name, module in i3d._modules.items():
-    print(name, module)
+#for name, module in i3d._modules.items():
+#    print(name, module)
+
+print(i3d)
+
+input = np.random.rand(1, 3, 32, 256, 256)
+input = torch.from_numpy(input).float()
+
+output = i3d(input)
+
+print(output)
