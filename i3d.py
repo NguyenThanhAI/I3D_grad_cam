@@ -21,7 +21,7 @@ class Bottleneck(nn.Module):
         else:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
         self.bn1 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        self.relu1 = nn.ReLU(inplace=True)
+        #self.relu1 = nn.ReLU(inplace=True)
         #if self.is_downsample:
         #    self.downsample = Downsample(in_channels, out_channels=out_channels)
         #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
@@ -37,7 +37,7 @@ class Bottleneck(nn.Module):
         else:
             self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
         self.bn2 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        self.relu2 = nn.ReLU(inplace=True)
+        #self.relu2 = nn.ReLU(inplace=True)
 
         self.conv3 = nn.Conv3d(in_channels=mid_channels, out_channels=out_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
         self.bn3 = nn.BatchNorm3d(num_features=out_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -47,10 +47,10 @@ class Bottleneck(nn.Module):
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu1(out)
+        out = self.relu(out)
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.relu2(out)
+        out = self.relu(out)
         out = self.conv3(out)
         out = self.bn3(out)
 
@@ -65,12 +65,12 @@ class Bottleneck(nn.Module):
         return out
 
 
-class BackBone(nn.Module):
+class ResNet_I3D(nn.Module):
     def __init__(self):
-        super(BackBone, self).__init__()
+        super(ResNet_I3D, self).__init__()
         self.conv1 = nn.Conv3d(in_channels=3, out_channels=64, kernel_size=(5, 7, 7), stride=(2, 2, 2), bias=False, padding=(2, 3, 3))
         self.bn1 = nn.BatchNorm3d(num_features=64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool3d(kernel_size=(1, 3, 3), stride=(2, 2, 2), padding=(0, 1, 1), dilation=1, ceil_mode=False)
         self.pool2 = nn.MaxPool3d(kernel_size=(2, 1, 1), stride=(2, 1, 1), padding=(0, 0, 0), dilation=1, ceil_mode=False)
 
@@ -98,7 +98,7 @@ class BackBone(nn.Module):
     def forward(self, x):
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu1(out)
+        out = self.relu(out)
         out = self.max_pool(out)
         out = self.layer1(out)
         out = self.pool2(out)
@@ -142,13 +142,13 @@ class ClsHead(nn.Module):
 class I3D(nn.Module):
     def __init__(self):
         super(I3D, self).__init__()
-        self.backbone = BackBone()
-        self.simplespatialtemporalmodule = SimpleSpatialTemporalModule(spatial_size=8)
+        self.backbone = ResNet_I3D()
+        self.spatial_temporal_module = SimpleSpatialTemporalModule(spatial_size=8)
         self.cls_head = ClsHead()
 
     def forward(self, x):
         out = self.backbone(x)
-        out = self.simplespatialtemporalmodule(out)
+        out = self.spatial_temporal_module(out)
         #print(out.size())
         out = self.cls_head(out)
 
