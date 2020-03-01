@@ -20,6 +20,10 @@ class Bottleneck(nn.Module):
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(3, 1, 1), stride=(1, 1, 1), padding=(1, 0, 0), bias=False)
         else:
             self.conv1 = nn.Conv3d(in_channels=in_channels, out_channels=mid_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
+        if self.is_downsample:
+            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+        else:
+            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
         self.bn1 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         #self.relu1 = nn.ReLU(inplace=True)
         #if self.is_downsample:
@@ -27,21 +31,26 @@ class Bottleneck(nn.Module):
         #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
         #else:
         #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
-        if self.has_downsample:
-            if self.is_downsample:
-                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=2)
-                self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
-            else:
-                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=1)
-                self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
-        else:
-            self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+        #if self.has_downsample:
+        #    if self.is_downsample:
+        #        self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=2)
+        #        self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 2, 2), padding=(0, 1, 1), bias=False)
+        #    else:
+        #        self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=1)
+        #        self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
+        #else:
+        #    self.conv2 = nn.Conv3d(in_channels=mid_channels, out_channels=mid_channels, kernel_size=(1, 3, 3), stride=(1, 1, 1), padding=(0, 1, 1), bias=False)
         self.bn2 = nn.BatchNorm3d(num_features=mid_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         #self.relu2 = nn.ReLU(inplace=True)
 
         self.conv3 = nn.Conv3d(in_channels=mid_channels, out_channels=out_channels, kernel_size=(1, 1, 1), stride=(1, 1, 1), padding=(0, 0, 0), bias=False)
         self.bn3 = nn.BatchNorm3d(num_features=out_channels, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         self.relu = nn.ReLU(inplace=True)
+        if self.has_downsample:
+            if self.is_downsample:
+                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=2)
+            else:
+                self.downsample = Downsample(in_channels=in_channels, out_channels=out_channels, stride=1)
 
     def forward(self, x):
 

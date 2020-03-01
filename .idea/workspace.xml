@@ -37,7 +37,7 @@
       <recent name="F:\PythonProjects\action_understanding\I3D_grad_cam" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.i3d">
+  <component name="RunManager" selected="Python.i3d_mmaction">
     <configuration name="build_net" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="I3D_grad_cam" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -145,10 +145,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.i3d" />
         <item itemvalue="Python.i3d_mmaction" />
-        <item itemvalue="Python.utils" />
         <item itemvalue="Python.load_checkpoint_pth" />
+        <item itemvalue="Python.i3d" />
+        <item itemvalue="Python.utils" />
         <item itemvalue="Python.build_net" />
       </list>
     </recent_temporary>
@@ -188,22 +188,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="463" y="119" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1582471048881" />
-    <state width="1345" height="178" key="GridCell.Tab.0.bottom" timestamp="1582990037715">
+    <state width="1345" height="178" key="GridCell.Tab.0.bottom" timestamp="1583063824007">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="178" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1582990037715" />
-    <state width="1345" height="178" key="GridCell.Tab.0.center" timestamp="1582990037715">
+    <state width="1345" height="178" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1583063824007" />
+    <state width="1345" height="178" key="GridCell.Tab.0.center" timestamp="1583063823991">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="178" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1582990037715" />
-    <state width="1345" height="178" key="GridCell.Tab.0.left" timestamp="1582990037714">
+    <state width="1345" height="178" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1583063823991" />
+    <state width="1345" height="178" key="GridCell.Tab.0.left" timestamp="1583063823991">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="178" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1582990037714" />
-    <state width="1345" height="178" key="GridCell.Tab.0.right" timestamp="1582990037715">
+    <state width="1345" height="178" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1583063823991" />
+    <state width="1345" height="178" key="GridCell.Tab.0.right" timestamp="1583063824007">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1345" height="178" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1582990037715" />
+    <state width="1345" height="178" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1583063824007" />
     <state x="92" y="92" width="1182" height="544" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1582989579561">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
