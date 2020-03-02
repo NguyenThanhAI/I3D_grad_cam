@@ -2,10 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="845be493-0108-4003-8fdd-280bc2b3e64b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/grad_cam.py" beforeDir="false" afterPath="$PROJECT_DIR$/grad_cam.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/i3d.py" beforeDir="false" afterPath="$PROJECT_DIR$/i3d.py" afterDir="false" />
     </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -29,14 +30,26 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../convert_caffe_model_to_pytorch" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="F:\PythonProjects\action_understanding\I3D_grad_cam" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.i3d">
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.grad_cam">
     <configuration name="build_net" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="I3D_grad_cam" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -123,8 +136,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.i3d" />
         <item itemvalue="Python.grad_cam" />
+        <item itemvalue="Python.i3d" />
         <item itemvalue="Python.load_checkpoint_pth" />
         <item itemvalue="Python.build_net" />
       </list>
@@ -142,6 +155,17 @@
       <updated>1582375528979</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="WindowStateProjectService">
     <state x="242" y="166" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582451052141">

@@ -147,25 +147,25 @@ class I3D(nn.Module):
         return out
 
 
-i3d = I3D()
-
-i = 0
-for name, param in dict(i3d.state_dict()).items():
-    i += 1
-    print(name, param.numpy().shape)
-
-print(i)
-
-i3d.load_state_dict(torch.load("i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth")["state_dict"])
-
-#for name, module in i3d._modules.items():
-#    print(name, module)
-
-print(i3d)
-
-input = np.random.rand(1, 3, 32, 256, 256)
-input = torch.from_numpy(input).float()
-
-output = i3d(input)
-
-print(output)
+#i3d = I3D()
+#
+#i = 0
+#for name, param in dict(i3d.state_dict()).items():
+#    i += 1
+#    print(name, param.numpy().shape)
+#
+#print(i)
+#
+#i3d.load_state_dict(torch.load("i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth")["state_dict"])
+#
+##for name, module in i3d._modules.items():
+##    print(name, module)
+#
+#print(i3d)
+#
+#input = np.random.rand(1, 3, 32, 256, 256)
+#input = torch.from_numpy(input).float()
+#
+#output = i3d(input)
+#
+#print(output)

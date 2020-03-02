@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import cv2
@@ -19,6 +20,7 @@ def show_frames_on_figure(frames):
     for i, frame in enumerate(frames):
         fig.add_subplot(rows, columns, i+1)
         plt.imshow(frame)
+        plt.title("Frame " + str(i + 1))
     plt.show()
 
 
@@ -49,6 +51,7 @@ def get_input_frames(args):
     frame_list = list(map(preprocess, frame_list))
     frame_list = np.stack(frame_list, axis=0)
     frame_list = np.transpose(frame_list, axes=(3, 0, 1, 2))
+    #print("frame_list:", frame_list)
     frame_list = torch.from_numpy(frame_list)
     frame_list = frame_list.unsqueeze(0).float().requires_grad_(True)
 
@@ -76,7 +79,7 @@ class Feature_Extractor():
             if name in self.target_layers:
                 x.register_hook(self.save_gradient)
                 outputs += [x]
-            print(list(x.size()))
+            #print(list(x.size()))
         return outputs, x
 
 
@@ -99,6 +102,7 @@ class GradCam:
 
         if index is None:
             softmax = F.softmax(output, dim=1)
+            print(softmax)
             index = np.argmax(softmax.cpu().data.numpy())
 
         print("index of gradcam", index)
@@ -141,10 +145,10 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--checkpoint_path", type=str, default="i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth", help="Path to pretrained model")
-    parser.add_argument("--video_path", type=str, default=r"F:\PythonProjects\action_understanding\convert_caffe_model_to_pytorch\yoga\_EN7WZryBZQ_000690_000700.mp4", help="Path to test video")
+    parser.add_argument("--video_path", type=str, default=r"E:\PythonProjects\action_understanding\convert_caffe_model_to_pytorch\yoga\MrJG9DTZ-KQ_000008_000018.mp4", help="Path to test video")
     parser.add_argument("--num_classes", type=int, default=400, help="Num classes")
     parser.add_argument("--use_cuda", type=bool, default=False, help="Use GPU acceleration")
-    parser.add_argument("--frame_index", type=int, default=10, help="Index of first frame of 32 consequent frames")
+    parser.add_argument("--frame_index", type=int, default=30, help="Index of first frame of 32 consequent frames")
 
     args = parser.parse_args()
     return args
