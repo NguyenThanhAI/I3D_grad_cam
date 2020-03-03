@@ -21,6 +21,7 @@ def show_frames_on_figure(frames):
         fig.add_subplot(rows, columns, i+1)
         plt.imshow(frame)
         plt.title("Frame " + str(i + 1))
+    plt.savefig(os.path.join("heatmap", folder_name, "input_frames.jpg"))
     plt.show()
 
 
@@ -102,10 +103,10 @@ class GradCam:
 
         if index is None:
             softmax = F.softmax(output, dim=1)
-            print(softmax)
+            #print(softmax)
             index = np.argmax(softmax.cpu().data.numpy())
 
-        print("index of gradcam", index)
+        #print("index of gradcam", index)
 
         one_hot = np.zeros((1, softmax.size()[-1]), dtype=np.float32)
         one_hot[0][index] = 1
@@ -128,6 +129,67 @@ class GradCam:
         weights = np.mean(grads_val, axis=(3, 4))[0, :, :]
 
         cam = np.sum(weights[:, :, np.newaxis, np.newaxis] * target, axis=0)
+
+        cam_list = []
+
+        for i in range(cam.shape[0]):
+            cam_temp = cam[i].copy()
+            cam_temp = np.maximum(cam_temp, 0)
+            cam_temp = cv2.resize(cam_temp, (512, 512))
+            cam_temp = (cam_temp - np.min(cam_temp)) / np.max(cam_temp)
+            cam_temp = cv2.applyColorMap(np.uint8(255 * cam_temp), cv2.COLORMAP_JET)
+            cam_list.append(cam_temp)
+
+        mean_cam = np.mean(cam, axis=0)
+        mean_cam = np.maximum(mean_cam, 0)
+        mean_cam = cv2.resize(mean_cam, (512, 512))
+        mean_cam = (mean_cam - np.min(mean_cam)) / np.max(mean_cam)
+        mean_cam = cv2.applyColorMap(np.uint8(255 * mean_cam), cv2.COLORMAP_JET)
+
+        cam_list.append(mean_cam)
+
+        min_cam = np.min(cam, axis=0)
+        min_cam = np.maximum(min_cam, 0)
+        min_cam = cv2.resize(min_cam, (512, 512))
+        min_cam = (min_cam - np.min(min_cam)) / np.max(min_cam)
+        min_cam = cv2.applyColorMap(np.uint8(255 * min_cam), cv2.COLORMAP_JET)
+
+        cam_list.append(min_cam)
+
+        max_cam = np.max(cam, axis=0)
+        max_cam = np.maximum(max_cam, 0)
+        max_cam = cv2.resize(max_cam, (512, 512))
+        max_cam = (max_cam - np.min(max_cam)) / np.max(max_cam)
+        max_cam = cv2.applyColorMap(np.uint8(255 * max_cam), cv2.COLORMAP_JET)
+
+        cam_list.append(max_cam)
+
+        fig = plt.figure(figsize=(15, 15))
+        rows = 2
+        columns = 4
+
+        for k, cam_map in enumerate(cam_list):
+            fig.add_subplot(rows, columns, k + 1)
+            im = plt.imshow(cam_map[:, :, ::-1], cmap=plt.cm.get_cmap("jet"))
+            if k == 0:
+                plt.title("1st cam")
+            elif k == 1:
+                plt.title("2nd cam")
+            elif k == 2:
+                plt.title("3rd cam")
+            elif k == 3:
+                plt.title("4th cam")
+            elif k == 4:
+                plt.title("Average cam")
+            elif k == 5:
+                plt.title("Min cam")
+            else:
+                plt.title("Max cam")
+        cax = plt.axes([0.925, 0.1, 0.02, 0.8])
+        plt.colorbar(cax=cax)
+        plt.savefig(os.path.join("heatmap", folder_name, "cams.jpg"))
+        plt.show()
+
         cam = np.mean(cam, axis=0)
 
         cam = np.maximum(cam, 0)
@@ -145,7 +207,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--checkpoint_path", type=str, default="i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth", help="Path to pretrained model")
-    parser.add_argument("--video_path", type=str, default=r"E:\PythonProjects\action_understanding\convert_caffe_model_to_pytorch\yoga\MrJG9DTZ-KQ_000008_000018.mp4", help="Path to test video")
+    parser.add_argument("--video_path", type=str, default=r"E:\PythonProjects\action_understanding\convert_caffe_model_to_pytorch\yoga\YZ8VMXkzYeE_000088_000098.mp4", help="Path to test video")
     parser.add_argument("--num_classes", type=int, default=400, help="Num classes")
     parser.add_argument("--use_cuda", type=bool, default=False, help="Use GPU acceleration")
     parser.add_argument("--frame_index", type=int, default=30, help="Index of first frame of 32 consequent frames")
@@ -156,6 +218,10 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
+
+    folder_name = "_".join(args.video_path.split(os.sep)[-2:])
+    if not os.path.exists(os.path.join("heatmap", folder_name)):
+        os.makedirs(os.path.join("heatmap", folder_name), exist_ok=True)
 
     model = I3D()
 
