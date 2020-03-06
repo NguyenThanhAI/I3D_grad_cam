@@ -86,7 +86,7 @@ class Feature_Extractor():
 
 class GradCam:
     def __init__(self, model, target_layer_names="backbone", use_cuda=False):
-        self.model = model
+        self.model = model.eval() # Phải thêm .eval() nếu không kết quả sai
         self.cuda = use_cuda
         if self.cuda:
             self.model = model.cuda()
@@ -109,6 +109,7 @@ class GradCam:
             index = np.argsort(prob)[::-1][:3].tolist()
             name_cam = "predicted_class_cams.jpg"
             print(list(map(lambda x: label_to_class[x], index)))
+            index = index[0]
 
         print("index of gradcam", index)
 
@@ -211,7 +212,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--checkpoint_path", type=str, default="i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth", help="Path to pretrained model")
-    parser.add_argument("--video_path", type=str, default=r"E:\PythonProjects\action_understanding\convert_caffe_model_to_pytorch\yoga\YZ8VMXkzYeE_000088_000098.mp4", help="Path to test video")
+    parser.add_argument("--video_path", type=str, default=r"D:\kinetics400\videos_train\dribbling_basketball\URf25WYP6P4_000108_000118.mp4", help="Path to test video")
     parser.add_argument("--num_classes", type=int, default=400, help="Num classes")
     parser.add_argument("--use_cuda", type=bool, default=False, help="Use GPU acceleration")
     parser.add_argument("--frame_index", type=int, default=30, help="Index of first frame of 32 consequent frames")
