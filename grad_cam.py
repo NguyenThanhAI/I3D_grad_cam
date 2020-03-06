@@ -109,6 +109,7 @@ class GradCam:
             index = np.argsort(prob)[::-1][:3].tolist()
             name_cam = "predicted_class_cams.jpg"
             print(list(map(lambda x: label_to_class[x], index)))
+            print("prob:", prob[index])
             index = index[0]
 
         print("index of gradcam", index)
