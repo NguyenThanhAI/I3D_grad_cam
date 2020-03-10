@@ -1,5 +1,6 @@
 import os
 import argparse
+import json
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -108,8 +109,12 @@ class GradCam:
             #index = np.argmax(softmax.cpu().data.numpy())
             index = np.argsort(prob)[::-1][:3].tolist()
             name_cam = "predicted_class_cams.jpg"
-            print(list(map(lambda x: label_to_class[x], index)))
-            print("prob:", prob[index])
+            predicted_classes = list(map(lambda x: label_to_class[x], index))
+            prob = prob[index]
+            class_and_prob = dict(zip(predicted_classes, prob.tolist()))
+            with open(os.path.join("heatmap", folder_name, "result.txt"), "w") as f:
+                json.dump(class_and_prob, f)
+            print(class_and_prob)
             index = index[0]
 
         print("index of gradcam", index)
@@ -213,7 +218,7 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--checkpoint_path", type=str, default="i3d_kinetics_rgb_r50_c3d_inflated3x1x1_seg1_f32s2_f32s2-b93cc877.pth", help="Path to pretrained model")
-    parser.add_argument("--video_path", type=str, default=r"D:\kinetics400\videos_train\dribbling_basketball\URf25WYP6P4_000108_000118.mp4", help="Path to test video")
+    parser.add_argument("--video_path", type=str, default=r"D:\kinetics400\videos_train\yoga\YZ8VMXkzYeE_000088_000098.mp4", help="Path to test video")
     parser.add_argument("--num_classes", type=int, default=400, help="Num classes")
     parser.add_argument("--use_cuda", type=bool, default=False, help="Use GPU acceleration")
     parser.add_argument("--frame_index", type=int, default=30, help="Index of first frame of 32 consequent frames")
